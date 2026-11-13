@@ -17,9 +17,9 @@ low: [1, 4)    medium: [4, 7)    high: [7, 10]
 ```plaintext
 .
 ├── data/
-│   ├── raw/              # dataset_phishing.csv (not committed)
-│   ├── external/         # PhishTank list (not committed)
-│   ├── processed/        # splits and generated files (not committed)
+│   ├── raw/              # dataset_phishing.csv (Kaggle)
+│   ├── external/         # phishtank_online_valid.csv (PhishTank)
+│   ├── processed/        # splits and generated files
 │   └── README.md         # how to get the data
 ├── notebooks/            # exploration notebooks
 ├── reports/

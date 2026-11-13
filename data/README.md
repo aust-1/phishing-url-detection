@@ -1,6 +1,7 @@
 # Data
 
-Nothing in this folder is committed, only the folder structure.
+The data files are committed with the code, so the notebooks and scripts work
+right after a clone.
 
 | Folder       | Content                                            |
 | ------------ | -------------------------------------------------- |

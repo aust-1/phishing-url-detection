@@ -12,12 +12,6 @@ dist/
 .ruff_cache/
 .ipynb_checkpoints/
 
-# Data (downloaded or generated, never committed)
-data/raw/*
-data/processed/*
-data/external/*
-!data/**/.gitkeep
-
 # Generated reports
 reports/figures/*
 !reports/figures/.gitkeep
