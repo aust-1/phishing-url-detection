@@ -125,3 +125,50 @@ def registered_domain(url: str) -> str:
         host = str(url)
     r = _EX(host)
     return r.top_domain_under_public_suffix or r.domain or host
+
+
+class OOFProba(BaseEstimator, TransformerMixin):
+    """Stacking feature: probability of an inner model.
+
+    fit_transform returns out-of-fold probabilities (the row is never seen by the
+    model that scores it); transform uses the model refitted on all the data.
+    """
+
+    def __init__(self, estimator, n_splits=5, random_state=0, by_domain=False):
+        self.estimator = estimator
+        self.n_splits = n_splits
+        self.random_state = random_state
+        self.by_domain = by_domain
+
+    def fit(self, X, y):
+        from sklearn.base import clone
+        self.model_ = clone(self.estimator).fit(X, y)
+        return self
+
+    def fit_transform(self, X, y=None, **kw):
+        from sklearn.base import clone
+        from sklearn.model_selection import (StratifiedGroupKFold, StratifiedKFold,
+                                             cross_val_predict)
+        groups = None
+        if self.by_domain:  # inner folds never share a registered domain
+            groups = X["url"].map(registered_domain).to_numpy()
+            cv = StratifiedGroupKFold(self.n_splits, shuffle=True, random_state=self.random_state)
+        else:
+            cv = StratifiedKFold(self.n_splits, shuffle=True, random_state=self.random_state)
+        p = cross_val_predict(clone(self.estimator), X, y, cv=cv, groups=groups,
+                              method="predict_proba")[:, 1]
+        self.fit(X, y)
+        return p.reshape(-1, 1)
+
+    def transform(self, X):
+        return self.model_.predict_proba(X)[:, 1].reshape(-1, 1)
+
+
+def tfidf_lr(C=10.0):
+    from sklearn.compose import ColumnTransformer
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.pipeline import make_pipeline
+    vec = TfidfVectorizer(analyzer="char_wb", ngram_range=(1, 5), min_df=2, sublinear_tf=True,
+                          max_features=300000)
+    return make_pipeline(ColumnTransformer([("t", vec, "url")]), LogisticRegression(C=C, max_iter=3000))
