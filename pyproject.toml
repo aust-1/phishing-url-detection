@@ -14,10 +14,15 @@ dependencies = [
     "scikit-learn>=1.5",
     "matplotlib>=3.8",
     "requests>=2.31",
+    "tldextract>=5.1",
+    "lightgbm>=4.3",
+    "xgboost>=2.0",
+    "catboost>=1.2",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.6", "jupyter>=1.0"]
+experiments = ["optuna>=3.6"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -28,6 +33,8 @@ testpaths = ["tests"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+# exploratory scripts, kept as they were run
+extend-exclude = ["experiments"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM"]

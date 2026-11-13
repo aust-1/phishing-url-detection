@@ -25,3 +25,6 @@ reports/*.json
 .DS_Store
 .vscode/
 .idea/
+
+# Experiments: probabilities saved by each run
+experiments/out/*.npy
