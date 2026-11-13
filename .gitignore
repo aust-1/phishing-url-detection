@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+
+# Tools
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Data (downloaded or generated, never committed)
+data/raw/*
+data/processed/*
+data/external/*
+!data/**/.gitkeep
+
+# Generated reports
+reports/figures/*
+!reports/figures/.gitkeep
+reports/*.csv
+reports/*.json
+
+# Secrets
+.env
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
