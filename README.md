@@ -21,7 +21,9 @@ low: [1, 4)    medium: [4, 7)    high: [7, 10]
 │   ├── external/         # phishtank_online_valid.csv (PhishTank)
 │   ├── processed/        # splits and generated files
 │   └── README.md         # how to get the data
-├── notebooks/            # exploration notebooks
+├── notebooks/
+│   ├── v1.ipynb              # first look at the data
+│   └── v2_meilleur_modele.ipynb  # best model: comparison, final test, PhishTank
 ├── reports/
 │   └── figures/          # generated figures
 ├── scripts/
@@ -33,6 +35,7 @@ low: [1, 4)    medium: [4, 7)    high: [7, 10]
 │   ├── config.py         # paths and constants
 │   ├── data.py           # load, clean, feature groups, split
 │   ├── features.py       # lexical features from a raw URL
+│   ├── url_text.py       # extra URL features, char TF-IDF model, out-of-fold stacking
 │   ├── phishtank.py      # PhishTank download and load
 │   ├── risk.py           # risk score and risk level
 │   └── evaluation.py     # metrics and figures
@@ -57,7 +60,10 @@ python scripts/make_splits.py
 python scripts/eda.py
 python scripts/check_features.py
 
-# 2. optional, PhishTank test set
+# 2. best model (about 15 min on 4 cores; RUN_BENCHMARK = False skips the comparison)
+jupyter nbconvert --to notebook --execute --inplace notebooks/v2_meilleur_modele.ipynb
+
+# 3. optional, PhishTank test set
 export PHISHTANK_USER_AGENT=phishtank/<your-username>
 export PHISHTANK_APP_KEY=<key>
 python scripts/fetch_phishtank.py
@@ -68,7 +74,8 @@ python scripts/fetch_phishtank.py
 - The test split is used only once, for the final evaluation.
 - Scaling and feature selection are fitted inside a scikit-learn `Pipeline`,
   only on training folds.
-- The `url` column is never used as a feature.
+- The `url` column is never given to a model as it is: only the transformers of
+  `phishing.url_text` read it, inside the pipeline.
 - All models are compared with the baseline using `phishing.evaluation`.
 
 ## Development
