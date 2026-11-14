@@ -172,3 +172,46 @@ def tfidf_lr(C=10.0):
     vec = TfidfVectorizer(analyzer="char_wb", ngram_range=(1, 5), min_df=2, sublinear_tf=True,
                           max_features=300000)
     return make_pipeline(ColumnTransformer([("t", vec, "url")]), LogisticRegression(C=C, max_iter=3000))
+
+
+def _hosts(urls):
+    out = []
+    for u in urls:
+        try:
+            out.append(urlsplit(str(u)).hostname or "")
+        except ValueError:
+            out.append("")
+    return out
+
+
+def _rests(urls):
+    out = []
+    for u in urls:
+        try:
+            p = urlsplit(str(u))
+            out.append(p.path + "?" + p.query)
+        except ValueError:
+            out.append(str(u))
+    return out
+
+
+def text_model(C=10.0):
+    """TF-IDF of host chars, path chars and URL words + logistic regression."""
+    from sklearn.compose import ColumnTransformer
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.pipeline import make_pipeline
+    from sklearn.preprocessing import FunctionTransformer
+
+    def cw():
+        return TfidfVectorizer(analyzer="char_wb", ngram_range=(1, 5), min_df=2,
+                               sublinear_tf=True, max_features=300000)
+
+    word = TfidfVectorizer(analyzer="word", token_pattern=r"[A-Za-z0-9]+", ngram_range=(1, 2),
+                           min_df=2, sublinear_tf=True)
+    ct = ColumnTransformer([
+        ("host", make_pipeline(FunctionTransformer(_hosts), cw()), "url"),
+        ("path", make_pipeline(FunctionTransformer(_rests), cw()), "url"),
+        ("word", word, "url"),
+    ])
+    return make_pipeline(ct, LogisticRegression(C=C, max_iter=5000))
